@@ -1,0 +1,31 @@
+# P2Rank Python AlphaFold Configuration
+# Converted from distro/config/alphafold.groovy
+# Optimized for use with AlphaFold, cryo-EM, and NMR models
+
+# Inherit from default configuration
+_extends: "default.yaml"
+
+# Model specific to AlphaFold
+model: "alphafold"
+
+# Feature groups - excludes bfactor for AlphaFold structures
+features:
+  - "chem"
+  - "volsite"
+  - "protrusion"
+  # Note: bfactor excluded for AlphaFold structures
+
+# Disable B-factor features for AlphaFold/NMR/cryo-EM
+feat_bfactor: false
+
+# Score transformations for AlphaFold model
+zscoretp_transformer: "_score_transform/alphafold_ZscoreTpTransformer.json"
+probatp_transformer: "_score_transform/alphafold_ProbabilityScoreTransformer.json"
+zscoretp_res_transformer: "_score_transform/residue/alphafold_ZscoreTpTransformer.json"
+probatp_res_transformer: "_score_transform/residue/alphafold_ProbabilityScoreTransformer.json"
+
+# AlphaFold-specific settings
+comments: |
+  This configuration is optimized for AlphaFold predicted structures,
+  cryo-EM structures, and NMR structures where B-factors may not be
+  reliable indicators of flexibility or accuracy. 

@@ -1,0 +1,67 @@
+# Default configuration for P2Rank Python implementation
+
+# Runtime parameters
+parallel: true
+threads: 4
+seed: 42
+log_level: "INFO"
+log_to_console: true
+log_to_file: false
+
+# Model settings
+model: "default"
+
+# Prediction parameters
+pred_protein_surface_cutoff: 4.5
+pred_min_cluster_size: 3
+pred_clustering_dist: 5.0
+pred_point_threshold: 0.5
+extended_pocket_cutoff: 0.0
+
+# Scoring parameters
+balance_density: false
+balance_density_radius: 2.0
+score_point_limit: 0
+score_pockets_by: "default"  # "default", "conservation", "combi"
+
+# Surface and tessellation
+tessellation: "connolly"
+train_tessellation: "connolly" 
+train_negatives_tessellation: "connolly"
+solvent_radius: 1.4
+probe_radius: 1.4
+
+# Feature extraction
+neighbourhood_radius: 8.0
+atom_table_features: true
+extra_features: true
+feat_atom_types: true
+
+# Machine learning
+classifier: "RandomForest"
+rf_trees: 100
+rf_depth: 20
+rf_features: 0  # 0 = sqrt(n_features)
+
+# Training parameters
+train_protein_limit: 0
+train_positives_limit: 0
+train_negatives_limit: 0
+positive_sample_ratio: 1.0
+negative_sample_ratio: 1.0
+
+# Prediction settings
+predict_residues: false
+ligand_derived_point_labeling: true
+
+# Visualization
+visualizations: true
+vis_copy_proteins: true
+
+# Performance
+cache_datasets: true
+clear_sec_caches: false
+
+# Debugging
+debug_mode: false
+fail_fast: false 

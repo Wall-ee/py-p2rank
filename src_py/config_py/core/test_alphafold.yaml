@@ -1,0 +1,15 @@
+# P2Rank AlphaFold Test Configuration
+_extends: "test_default"
+_description: "Test configuration for AlphaFold model - excludes B-factor features"
+
+# === Model Configuration ===
+model: "alphafold"
+features: ["chem", "volsite", "protrusion"]  # No bfactor for AlphaFold structures
+
+# === Score Transformers ===
+# AlphaFold-specific score transformation files
+zscoretp_transformer: "{models_dir}/_score_transform/alphafold_ZscoreTpTransformer.json"
+probatp_transformer: "{models_dir}/_score_transform/alphafold_ProbabilityScoreTransformer.json"
+zscoretp_res_transformer: "{models_dir}/_score_transform/residue/alphafold_ZscoreTpTransformer.json"
+probatp_res_transformer: "{models_dir}/_score_transform/residue/alphafold_ProbabilityScoreTransformer.json"
+

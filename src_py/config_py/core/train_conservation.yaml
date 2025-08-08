@@ -1,0 +1,24 @@
+# P2Rank Conservation Training Configuration
+_extends: "train_default"
+_description: "Training configuration for conservation model - includes conservation features"
+
+# === Model Configuration ===
+model: "conservation_hmm"
+features: ["chem", "volsite", "protrusion", "bfactor", "conservation"]
+
+# === Path Configuration ===
+dataset_base_dir: "../../p2rank-datasets2"
+output_base_dir: "../../p2rank-results/{version}"
+
+# === Conservation Features ===
+load_conservation: true
+conservation_files_pattern: "*.conservation"
+
+# === Training Algorithm Parameters ===
+# Important: different from default model training
+sample_negatives_from_decoys: false  # Different from default model
+atom_table_feat_keep_sgn: false     # preserve legacy behavior
+
+# === Classifier Configuration ===
+classifier: "RandomForest"
+

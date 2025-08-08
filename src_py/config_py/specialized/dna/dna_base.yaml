@@ -1,0 +1,63 @@
+# P2Rank DNA Binding Sites Base Configuration
+_description: "Base configuration for DNA binding site prediction"
+
+# === Model Configuration ===
+model: "dna_binding"
+features: ["chem", "volsite", "bfactor", "protrusion", "pmass", "cr1pos", "ss_atomic", "ss_sas", "ss_cloud"]
+
+# === Path Configuration ===
+# dataset_base_dir: "../../dna_datasets/"
+# output_base_dir: "../../dna_datasets/"
+
+# === Specialized Settings ===
+predict_residues: true
+ligand_derived_point_labeling: false
+
+# === Visualization ===
+visualizations: false
+
+# === Execution ===
+fail_fast: true
+threads: 0  # auto-detect (original: cores/2)
+
+vis_generate_proteins: false
+
+# === Logging ===
+log_to_file: true
+delete_models: false
+
+# === Classifier ===
+classifier: "RandomForest"
+rf_trees: 10
+rf_bagsize: 50
+rf_depth: 10
+
+# === Cache ===
+cache_datasets: false
+clear_sec_caches: false
+clear_prim_caches: false
+
+# === Features ===
+residue_table_features: ["RAx"]
+atom_table_features: ["atomicHydrophobicity"]
+
+# === Logging and Stats ===
+log_level: "WARN"
+
+selected_stats:
+  - "_blank"
+  - "MCC"
+  - "F1"
+  - "AUC"
+  - "AUPRC"
+  - "TPX"
+  - "point_MCC"
+  - "point_F1"
+  - "point_TPX"
+  - "point_AUC"
+  - "point_AUPRC"
+  - "TIME_MINUTES"
+
+# === Statistics ===
+stats_collect_predictions: true  # to enable AUC and AUPRC metrics
+

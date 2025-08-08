@@ -1,0 +1,94 @@
+# P2Rank Base Configuration
+# This is the base configuration that other configs can extend
+
+_description: "Base P2Rank configuration with default parameters"
+
+# === Model Configuration ===
+model: "default"
+features: ["chem", "volsite", "protrusion", "bfactor"]
+
+# === Path Configuration ===
+dataset_base_dir: "../../p2rank-datasets"
+output_base_dir: "../../p2rank-results/{version}"
+
+# === Classifier Configuration ===
+classifier: "RandomForest"
+rf_trees: 100
+rf_depth: 12
+rf_features: 0  # 0=default(sqrt)
+rf_bagsize: 100
+rf_threads: 0   # 0=use threads param
+
+# === Feature Configuration ===
+atom_table_features: []
+residue_table_features: []
+feat_aa_properties: []
+atom_table_feat_pow: 2
+atom_table_feat_keep_sgn: false
+average_feat_vectors: false
+
+# === Distance and Threshold Parameters ===
+positive_point_ligand_distance: 2.5
+neutral_points_margin: 5.5
+neighbourhood_radius: 8.0
+protrusion_radius: 10.0
+solvent_radius: 1.6
+surface_additional_cutoff: 1.8
+
+# === Tessellation and Sampling ===
+tessellation: 2
+train_tessellation: 0  # 0=use tessellation value
+sampling_multiplier: 3.0
+
+# === Training Parameters ===
+train_pockets: 0  # 0=all pockets
+max_train_instances: 0  # 0=unlimited
+sample_negatives_from_decoys: false
+
+# === Prediction Parameters ===
+predictions: true
+predict_residues: false
+pred_point_threshold: 0.4
+pred_min_cluster_size: 3
+point_score_pow: 2.0
+strict_inner_points: false
+
+# === Weight Function Parameters ===
+weight_power: 2.0
+weight_sigma: 2.2
+weight_dist_param: 4.5
+weight_function: "INV"
+
+# === Execution Parameters ===
+threads: 0  # 0=auto-detect
+loop: 1
+seed: 42
+crossval_threads: 1
+
+# === Output and Logging ===
+visualizations: true
+vis_generate_proteins: true
+vis_highlight_ligands: false
+output_only_stats: false
+log_cases: false
+log_to_console: true
+log_to_file: false
+log_level: "INFO"
+out_prefix_date: true
+
+# === Cache and Performance ===
+cache_datasets: false
+clear_prim_caches: true
+clear_sec_caches: true
+delete_models: false
+delete_vectors: false
+
+# === Error Handling ===
+fail_fast: false
+
+# === Statistics ===
+stats_collect_predictions: false
+classifier_train_stats: false
+feature_importances: false
+eval_tolerances: [0, 1, 2, 4, 10, 99]
+

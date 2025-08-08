@@ -1,0 +1,140 @@
+# P2Rank Python Default Configuration
+# Converted from distro/config/default.groovy
+
+# Dataset and output directories
+dataset_base_dir: "../test_data"
+output_base_dir: "../test_output"
+
+# Model configuration
+model: "default"
+
+# Random seed for reproducibility
+seed: 42
+
+# Parallel processing
+parallel: true
+threads: -1  # -1 = auto-detect CPU cores, or specify number
+
+# Cross-validation settings
+crossval_threads: 1
+
+# Ligand and pocket detection parameters
+ligand_protein_contact_distance: 4.0
+positive_point_ligand_distance: 2.5
+negative_point_ligand_distance: 4.0
+
+# Surface and tessellation settings
+tessellation: "connolly"
+train_tessellation: "connolly"
+train_negatives_tessellation: "connolly"
+solvent_radius: 1.4
+probe_radius: 1.4
+
+# Feature extraction settings
+neighbourhood_radius: 8.0
+atom_table_features: true
+extra_features: true
+
+# Available feature groups
+features:
+  - "chem"
+  - "volsite" 
+  - "protrusion"
+  - "bfactor"
+
+# Chemical features
+feat_atom_types: true
+
+# Volume site features
+feat_volsite: true
+
+# Protrusion features  
+feat_protrusion: true
+
+# B-factor features
+feat_bfactor: true
+
+# Secondary structure features (disabled by default)
+feat_secondary_structure: false
+
+# Surface accessibility features
+feat_atom_surface_accessibility: false
+
+# Conservation features (disabled by default)
+feat_conservation: false
+
+# Prediction parameters
+pred_protein_surface_cutoff: 4.5
+pred_min_cluster_size: 3
+pred_clustering_dist: 5.0
+pred_point_threshold: 0.5
+
+# Pocket rescoring
+rescore_pockets: false
+
+# Extended pocket settings
+extended_pocket_cutoff: 0.0
+
+# Point filtering
+point_min_distfrom_protein: 2.5
+
+# Balance density parameters
+balance_density: false
+balance_density_radius: 2.0
+
+# Feature computation settings
+neighbourhood_radius_2: 6.0
+
+# Machine Learning parameters
+classifier: "RandomForest"
+
+# Random Forest settings
+rf_trees: 100
+rf_depth: 12
+rf_bagsize: 55
+rf_min_split: 5
+rf_min_leaf: 2
+rf_features: 0  # 0 = sqrt(n_features)
+
+# Logging settings
+log_level: "INFO"
+log_to_console: true
+log_to_file: false
+
+# Score thresholds
+score_threshold: 0.0
+score_point_limit: 0
+
+# Pocket scoring method
+score_pockets_by: "default"  # "default", "conservation", "combi"
+
+# Point density balancing
+balance_class_weights: false
+
+# Advanced settings
+fail_fast: true
+delete_models: false
+delete_vectors: true
+cache_datasets: false
+clear_sec_cache: false
+
+# Visualization settings
+visualizations: true
+vis_copy_proteins: true
+
+# Pocket ranking and filtering
+rank_pockets_by_score: true
+predictions_as_one_file: false
+
+# Score transformations (paths relative to models directory)
+zscoretp_transformer: ""
+probatp_transformer: ""
+zscoretp_res_transformer: ""
+probatp_res_transformer: ""
+
+# Conservation scoring (requires additional data)
+conservation_dir: ""
+
+# Debugging and development
+debug: false
+debug_level: 0 

@@ -1,0 +1,249 @@
+{
+  "timestamp": "/Users/lixiaoran/Documents/workspace/py-p2rank/src_py",
+  "summary": {
+    "total_core_configs": 6,
+    "total_specialized_configs": 4
+  },
+  "configurations": {
+    "core.test_default": {
+      "name": "test_default",
+      "category": "core",
+      "model": "default",
+      "features": [
+        "chem",
+        "volsite",
+        "protrusion",
+        "bfactor"
+      ],
+      "feature_count": 4,
+      "classifier": "RandomForest",
+      "rf_trees": 100,
+      "rf_depth": 12,
+      "tessellation": 2,
+      "validation": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "error_count": 0,
+        "warning_count": 0
+      }
+    },
+    "core.test_alphafold": {
+      "name": "test_alphafold",
+      "category": "core",
+      "model": "alphafold",
+      "features": [
+        "chem",
+        "volsite",
+        "protrusion"
+      ],
+      "feature_count": 3,
+      "classifier": "RandomForest",
+      "rf_trees": 100,
+      "rf_depth": 12,
+      "tessellation": 2,
+      "validation": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "error_count": 0,
+        "warning_count": 0
+      }
+    },
+    "core.test_conservation": {
+      "name": "test_conservation",
+      "category": "core",
+      "model": "conservation_hmm",
+      "features": [
+        "chem",
+        "volsite",
+        "protrusion",
+        "bfactor",
+        "conservation"
+      ],
+      "feature_count": 5,
+      "classifier": "RandomForest",
+      "rf_trees": 100,
+      "rf_depth": 12,
+      "tessellation": 2,
+      "validation": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "error_count": 0,
+        "warning_count": 0
+      }
+    },
+    "core.train_conservation": {
+      "name": "train_conservation",
+      "category": "core",
+      "model": "conservation_hmm",
+      "features": [
+        "chem",
+        "volsite",
+        "protrusion",
+        "bfactor",
+        "conservation"
+      ],
+      "feature_count": 5,
+      "classifier": "RandomForest",
+      "rf_trees": 100,
+      "rf_depth": 12,
+      "tessellation": 2,
+      "validation": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "error_count": 0,
+        "warning_count": 0
+      }
+    },
+    "core.train_default": {
+      "name": "train_default",
+      "category": "core",
+      "model": "default",
+      "features": [
+        "chem",
+        "volsite",
+        "protrusion",
+        "bfactor"
+      ],
+      "feature_count": 4,
+      "classifier": "RandomForest",
+      "rf_trees": 100,
+      "rf_depth": 12,
+      "tessellation": 2,
+      "validation": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "error_count": 0,
+        "warning_count": 0
+      }
+    },
+    "core.base": {
+      "name": "base",
+      "category": "core",
+      "model": "default",
+      "features": [
+        "chem",
+        "volsite",
+        "protrusion",
+        "bfactor"
+      ],
+      "feature_count": 4,
+      "classifier": "RandomForest",
+      "rf_trees": 100,
+      "rf_depth": 12,
+      "tessellation": 2,
+      "validation": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "error_count": 0,
+        "warning_count": 0
+      }
+    },
+    "ions.ions_base": {
+      "name": "ions_base",
+      "category": "ions",
+      "model": "ion_binding",
+      "features": [
+        "chem",
+        "volsite",
+        "bfactor",
+        "protrusion"
+      ],
+      "feature_count": 4,
+      "classifier": "RandomForest",
+      "rf_trees": 100,
+      "rf_depth": 12,
+      "tessellation": 2,
+      "validation": {
+        "valid": false,
+        "errors": [
+          "neutral_points_margin should be larger than positive_point_ligand_distance"
+        ],
+        "warnings": [],
+        "error_count": 1,
+        "warning_count": 0
+      }
+    },
+    "lig.ligand_base": {
+      "name": "ligand_base",
+      "category": "lig",
+      "model": "ligand_binding",
+      "features": [
+        "chem",
+        "volsite",
+        "protrusion",
+        "bfactor"
+      ],
+      "feature_count": 4,
+      "classifier": "RandomForest",
+      "rf_trees": 100,
+      "rf_depth": 12,
+      "tessellation": 2,
+      "validation": {
+        "valid": true,
+        "errors": [],
+        "warnings": [
+          "Dataset caching with multiple loops may consume significant memory"
+        ],
+        "error_count": 0,
+        "warning_count": 1
+      }
+    },
+    "dna.dna_base": {
+      "name": "dna_base",
+      "category": "dna",
+      "model": "dna_binding",
+      "features": [
+        "chem",
+        "volsite",
+        "bfactor",
+        "protrusion",
+        "pmass",
+        "cr1pos",
+        "ss_atomic",
+        "ss_sas",
+        "ss_cloud"
+      ],
+      "feature_count": 9,
+      "classifier": "RandomForest",
+      "rf_trees": 10,
+      "rf_depth": 10,
+      "tessellation": 2,
+      "validation": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "error_count": 0,
+        "warning_count": 0
+      }
+    },
+    "pept.peptide_base": {
+      "name": "peptide_base",
+      "category": "pept",
+      "model": "peptide_binding",
+      "features": [
+        "chem",
+        "volsite",
+        "protrusion",
+        "bfactor"
+      ],
+      "feature_count": 4,
+      "classifier": "RandomForest",
+      "rf_trees": 100,
+      "rf_depth": 12,
+      "tessellation": 2,
+      "validation": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "error_count": 0,
+        "warning_count": 0
+      }
+    }
+  }
+}

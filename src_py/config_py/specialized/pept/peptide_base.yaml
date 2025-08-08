@@ -1,0 +1,43 @@
+# P2Rank Peptide Binding Sites Base Configuration
+_description: "Base configuration for peptide binding site prediction"
+
+# === Model Configuration ===
+model: "peptide_binding"
+features: ["chem", "volsite", "protrusion", "bfactor"]
+
+# === Path Configuration ===
+dataset_base_dir: "../../p2rank-datasets"
+output_base_dir: "../../p2rank-results/{version}"
+
+# === Specialized Settings ===
+predict_residues: false
+
+# === Execution ===
+visualizations: false
+fail_fast: true
+threads: 0  # auto-detect
+
+# === Logging ===
+log_to_console: false
+log_to_file: true
+log_level: "WARN"
+
+# === Cache ===
+cache_datasets: false
+clear_prim_caches: false
+clear_sec_caches: false
+
+# === Classifier ===
+classifier: "RandomForest"
+rf_trees: 100
+rf_depth: 12
+
+# === Statistics ===
+stats_collect_predictions: true
+output_only_stats: true
+log_cases: true
+
+# === Training ===
+delete_models: true
+delete_vectors: true
+

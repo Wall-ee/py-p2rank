@@ -1,0 +1,140 @@
+{
+  "total_models": 7,
+  "successful_models": 7,
+  "success_rate": 1.0,
+  "individual_results": {
+    "conservation_hmm": {
+      "model_name": "conservation_hmm",
+      "status": "SUCCESS",
+      "n_features": 36,
+      "n_trees": 100,
+      "test_samples": 100,
+      "prediction_stats": {
+        "unique_predictions": 2,
+        "positive_rate": 0.14,
+        "prob_range": [
+          0.20650459924707626,
+          0.7934954007529237
+        ],
+        "prob_mean": 0.3820975210566319,
+        "prob_std": 0.09654708669062328
+      },
+      "can_predict": true,
+      "error": null
+    },
+    "default": {
+      "model_name": "default",
+      "status": "SUCCESS",
+      "n_features": 35,
+      "n_trees": 100,
+      "test_samples": 100,
+      "prediction_stats": {
+        "unique_predictions": 1,
+        "positive_rate": 0.0,
+        "prob_range": [
+          0.03126373380600849,
+          0.9687362661939913
+        ],
+        "prob_mean": 0.15379768616729114,
+        "prob_std": 0.06674018936437077
+      },
+      "can_predict": true,
+      "error": null
+    },
+    "rescore_2024": {
+      "model_name": "rescore_2024",
+      "status": "SUCCESS",
+      "n_features": 35,
+      "n_trees": 100,
+      "test_samples": 100,
+      "prediction_stats": {
+        "unique_predictions": 2,
+        "positive_rate": 0.94,
+        "prob_range": [
+          0.24677438462023346,
+          0.7532256153797668
+        ],
+        "prob_mean": 0.6036006402167134,
+        "prob_std": 0.06546111528035924
+      },
+      "can_predict": true,
+      "error": null
+    },
+    "alphafold": {
+      "model_name": "alphafold",
+      "status": "SUCCESS",
+      "n_features": 34,
+      "n_trees": 100,
+      "test_samples": 100,
+      "prediction_stats": {
+        "unique_predictions": 2,
+        "positive_rate": 0.98,
+        "prob_range": [
+          0.24026031340463558,
+          0.7597396865953651
+        ],
+        "prob_mean": 0.6304965982920703,
+        "prob_std": 0.06296552256442736
+      },
+      "can_predict": true,
+      "error": null
+    },
+    "default_rescore": {
+      "model_name": "default_rescore",
+      "status": "SUCCESS",
+      "n_features": 34,
+      "n_trees": 100,
+      "test_samples": 100,
+      "prediction_stats": {
+        "unique_predictions": 1,
+        "positive_rate": 1.0,
+        "prob_range": [
+          0.09796358803902833,
+          0.9020364119609716
+        ],
+        "prob_mean": 0.7377151566407805,
+        "prob_std": 0.0770566970714775
+      },
+      "can_predict": true,
+      "error": null
+    },
+    "rescore_conservation": {
+      "model_name": "rescore_conservation",
+      "status": "SUCCESS",
+      "n_features": 35,
+      "n_trees": 100,
+      "test_samples": 100,
+      "prediction_stats": {
+        "unique_predictions": 1,
+        "positive_rate": 1.0,
+        "prob_range": [
+          0.09145223561499621,
+          0.9085477643850034
+        ],
+        "prob_mean": 0.7544332408611435,
+        "prob_std": 0.0698700110802393
+      },
+      "can_predict": true,
+      "error": null
+    },
+    "alphafold_conservation_hmm": {
+      "model_name": "alphafold_conservation_hmm",
+      "status": "SUCCESS",
+      "n_features": 35,
+      "n_trees": 100,
+      "test_samples": 100,
+      "prediction_stats": {
+        "unique_predictions": 1,
+        "positive_rate": 1.0,
+        "prob_range": [
+          0.22251278748353484,
+          0.7774872125164652
+        ],
+        "prob_mean": 0.6198054644947806,
+        "prob_std": 0.055759103668913255
+      },
+      "can_predict": true,
+      "error": null
+    }
+  }
+}

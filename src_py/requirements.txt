@@ -1,0 +1,32 @@
+numpy>=1.20.0
+scipy>=1.7.0
+pandas>=1.3.0
+biopython>=1.79
+scikit-learn>=1.0.0
+matplotlib>=3.4.0
+seaborn>=0.11.0
+click>=8.0.0
+pyyaml>=5.4.0
+joblib>=1.0.0
+tqdm>=4.62.0
+
+# Additional scientific computing libraries
+statsmodels>=0.13.0
+plotly>=5.0.0
+networkx>=2.6.0
+
+# Performance and optimization
+numba>=0.55.0
+cython>=0.29.0
+
+# Model conversion and Java bridge tools
+zstandard>=0.18.0  # For decompressing Java .zst model files
+jpype1>=1.4.0      # Java bridge for reading serialized models (optional)
+
+# Optional dependencies for advanced features
+# Uncomment if needed:
+# opencv-python>=4.5.0
+# pillow>=8.0.0
+# pyqt5>=5.15.0
+# ipython>=7.0.0
+# jupyter>=1.0.0 

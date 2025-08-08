@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+#
+# P2Rank Python Distribution Launcher
+# Linux/macOS startup script for P2Rank Python version
+#
+
+set -e
+
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Set Python path to include P2Rank modules
+export PYTHONPATH="${SCRIPT_DIR}:${PYTHONPATH}"
+
+# Default Python command (can be overridden with P2RANK_PYTHON env var)
+PYTHON_CMD="${P2RANK_PYTHON:-python3}"
+
+# Check if Python is available
+if ! command -v "$PYTHON_CMD" &> /dev/null; then
+    echo "Error: Python not found. Please install Python 3.8+ or set P2RANK_PYTHON environment variable."
+    echo "Example: export P2RANK_PYTHON=/usr/bin/python3.9"
+    exit 1
+fi
+
+# Check Python version
+python_version=$($PYTHON_CMD -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+if [[ ! "$python_version" =~ ^3\.([8-9]|[1-9][0-9])$ ]]; then
+    echo "Error: Python 3.8+ is required. Found: Python $python_version"
+    echo "Please upgrade Python or set P2RANK_PYTHON to point to a newer version."
+    exit 1
+fi
+
+# Check if required dependencies are installed
+$PYTHON_CMD -c "import numpy, scipy, sklearn" 2>/dev/null || {
+    echo "Error: Required Python packages not found."
+    echo "Please install dependencies:"
+    echo "  pip install -r requirements.txt"
+    echo "or:"
+    echo "  pip install numpy scipy scikit-learn pandas biopython"
+    exit 1
+}
+
+# Set memory and performance options
+export PYTHONUNBUFFERED=1
+export NUMBA_CACHE_DIR="${SCRIPT_DIR}/.numba_cache"
+
+# Create cache directory if it doesn't exist
+mkdir -p "$NUMBA_CACHE_DIR"
+
+# Set the install directory for the Python program
+export P2RANK_INSTALL_DIR="$SCRIPT_DIR"
+
+# Show startup info in verbose mode
+if [[ "$1" == "-v" ]] || [[ "$1" == "--verbose" ]]; then
+    echo "P2Rank Python Distribution"
+    echo "Python executable: $PYTHON_CMD"
+    echo "Python version: $python_version"
+    echo "Install directory: $SCRIPT_DIR"
+    echo "Python path: $PYTHONPATH"
+    echo ""
+fi
+
+# Run the Python version of P2Rank
+exec "$PYTHON_CMD" "${SCRIPT_DIR}/p2rank_py.py" "$@" 

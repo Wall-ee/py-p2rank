@@ -1,0 +1,28 @@
+# P2Rank Default Test Configuration
+_extends: "base"
+_description: "Test configuration for default model - optimized for testing and benchmarking"
+
+# === Model Configuration ===
+model: "default"
+features: ["chem", "volsite", "protrusion", "bfactor"]
+
+# === Path Configuration ===
+dataset_base_dir: "../../p2rank-datasets"
+output_base_dir: "../../p2rank-results/{version}"
+
+# === Execution Parameters ===
+visualizations: false
+fail_fast: true
+log_to_console: false
+
+# === Classifier Configuration ===
+classifier: "RandomForest"
+rf_flatten: false
+rf_batch_prediction: true
+
+# === Performance Optimizations ===
+# Settings optimized for testing speed and reliability
+cache_datasets: false
+clear_prim_caches: true
+clear_sec_caches: true
+

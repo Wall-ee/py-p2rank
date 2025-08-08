@@ -1,0 +1,6 @@
+_extends: test_default
+_description: Custom configuration generated from test_default
+rf_trees: 200
+tessellation: 3
+visualizations: true
+log_level: DEBUG
