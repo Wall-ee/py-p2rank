@@ -92,22 +92,22 @@ class AdvancedSpatialTree:
                                            sort_results=sort_results)
             if return_distance:
                 indices, distances = indices
-                indices = indices[0]
-                distances = distances[0]
+                indices = np.asarray(indices[0]).astype(int)
+                distances = np.asarray(distances[0]).astype(float)
             else:
-                indices = indices[0]
+                indices = np.asarray(indices[0]).astype(int)
         else:  
             # NearestNeighbors with brute/auto
             indices, distances = self.tree.radius_neighbors(center, radius=radius,
                                                           return_distance=True,
                                                           sort_results=sort_results)
-            indices = indices[0]
-            distances = distances[0]
+            indices = np.asarray(indices[0]).astype(int)
+            distances = np.asarray(distances[0]).astype(float)
             
             if not return_distance:
                 distances = None
         
-        atoms = [self.atoms_list[i] for i in indices]
+        atoms = [self.atoms_list[int(i)] for i in indices]
         
         if return_distance:
             return atoms, distances.tolist()

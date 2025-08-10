@@ -5,9 +5,9 @@ import numpy as np
 from typing import List, Callable, Optional, Dict, Union, Tuple
 from sklearn.cluster import (
     DBSCAN, KMeans, AgglomerativeClustering, SpectralClustering,
-    OPTICS, MeanShift, Birch, GaussianMixture
+    OPTICS, MeanShift, Birch
 )
-from sklearn.mixture import BayesianGaussianMixture
+from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
 from sklearn.metrics import (
     silhouette_score, calinski_harabasz_score, davies_bouldin_score,
     adjusted_rand_score, normalized_mutual_info_score

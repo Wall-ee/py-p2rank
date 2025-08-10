@@ -11,6 +11,7 @@ import numpy as np
 from pathlib import Path
 import joblib
 import logging
+import pytest
 
 def setup_logging():
     logging.basicConfig(
@@ -18,7 +19,24 @@ def setup_logging():
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
 
-def test_model_prediction(model_path: Path) -> dict:
+@pytest.fixture
+def models_dir() -> Path:
+    d = Path(__file__).parent / "converted_models_final"
+    if not d.exists():
+        pytest.skip(f"Models directory not found: {d}")
+    return d
+
+
+@pytest.fixture
+def model_path(models_dir: Path) -> Path:
+    # Pick the first available model directory with model.pkl
+    for mp in models_dir.iterdir():
+        if mp.is_dir() and (mp / "model.pkl").exists():
+            return mp
+    pytest.skip("No converted models available to test")
+
+
+def test_model_prediction(model_path: Path):
     """Test a single model's prediction capability"""
     model_name = model_path.name
     
@@ -65,26 +83,14 @@ def test_model_prediction(model_path: Path) -> dict:
             "prob_std": float(np.std(probabilities[:, 1]))
         }
         
-        return {
-            "model_name": model_name,
-            "status": "SUCCESS",
-            "n_features": n_features,
-            "n_trees": metadata.get('n_trees', 0),
-            "test_samples": n_samples,
-            "prediction_stats": pred_stats,
-            "can_predict": True,
-            "error": None
-        }
+        assert predictions is not None and probabilities is not None
+        assert probabilities.shape[1] >= 2
+        assert 0.0 <= pred_stats["prob_mean"] <= 1.0
         
     except Exception as e:
-        return {
-            "model_name": model_name,
-            "status": "FAILED", 
-            "error": str(e),
-            "can_predict": False
-        }
+        pytest.fail(f"Model prediction failed for {model_name}: {e}")
 
-def test_all_models(models_dir: Path) -> dict:
+def test_all_models(models_dir: Path):
     """Test all converted models"""
     results = {}
     total_models = 0
@@ -98,19 +104,12 @@ def test_all_models(models_dir: Path) -> dict:
             total_models += 1
             print(f"\n📋 Testing model: {model_path.name}")
             
-            result = test_model_prediction(model_path)
-            results[model_path.name] = result
-            
-            if result["status"] == "SUCCESS":
+            try:
+                test_model_prediction(model_path)
                 successful_models += 1
                 print(f"   ✅ SUCCESS")
-                print(f"      Features: {result['n_features']}")
-                print(f"      Trees: {result['n_trees']}")
-                print(f"      Test samples: {result['test_samples']}")
-                print(f"      Positive rate: {result['prediction_stats']['positive_rate']:.3f}")
-                print(f"      Prob mean: {result['prediction_stats']['prob_mean']:.3f}")
-            else:
-                print(f"   ❌ FAILED: {result['error']}")
+            except AssertionError as ae:
+                print(f"   ❌ FAILED: {ae}")
     
     # Summary
     print(f"\n{'='*60}")
@@ -134,12 +133,7 @@ def test_all_models(models_dir: Path) -> dict:
             if result["status"] == "FAILED":
                 print(f"   • {name:25} - {result['error']}")
     
-    return {
-        "total_models": total_models,
-        "successful_models": successful_models,
-        "success_rate": successful_models/total_models if total_models > 0 else 0,
-        "individual_results": results
-    }
+    assert total_models >= successful_models
 
 def main():
     setup_logging()

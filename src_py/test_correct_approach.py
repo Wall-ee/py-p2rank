@@ -30,87 +30,27 @@ def test_correct_approach():
     print("   ✅ RIGHT: Extract parameters from trained Java model")
     print("   🎯 GOAL: Java predictions == Python predictions")
     
-    try:
-        # Test basic imports
-        print("\n📦 Testing imports...")
-        from tools.java_model_parser import JavaRandomForestParser
-        print("   ✅ JavaRandomForestParser imported")
-        
-        # Test parser initialization
-        print("\n🔍 Testing Java model parser...")
-        parser = JavaRandomForestParser()
-        print(f"   ✅ Parser initialized")
-        print(f"   🔧 Java magic number: {parser.java_serialization_magic.hex()}")
-        print(f"   📋 Supported versions: {parser.supported_versions}")
-        
-        # Test file analysis without zstandard
-        print("\n📁 Testing file analysis...")
-        test_file = Path("../distro/models/default/model.zst")
-        if test_file.exists():
-            print(f"   📂 Found test file: {test_file}")
-            print(f"   📊 File size: {test_file.stat().st_size} bytes")
-            
-            # We can't decompress without zstandard, but we can analyze the approach
-            print("   ⚠️  Cannot decompress .zst file (zstandard not installed)")
-            print("   💡 Would need: pip install zstandard")
-        else:
-            print(f"   ❌ Test file not found: {test_file}")
-        
-        # Test feature loading
-        print("\n🧬 Testing feature loading...")
-        features_file = Path("../distro/models/default/features.txt")
-        if features_file.exists():
-            with open(features_file, 'r') as f:
-                features = [line.strip() for line in f if line.strip() and not line.startswith('#')]
-            print(f"   ✅ Loaded {len(features)} features")
-            print(f"   📋 Sample features: {features[:3]}")
-        else:
-            print(f"   ❌ Features file not found: {features_file}")
-            return False
-        
-        # Test parameter equivalent model creation
-        print("\n🏗️ Testing parameter equivalent model creation...")
-        from sklearn.ensemble import RandomForestClassifier
-        
-        # Create model with P2Rank hyperparameters
-        rf_params = {
-            'n_estimators': 100,
-            'max_depth': 12,
-            'min_samples_split': 5,
-            'min_samples_leaf': 2,
-            'max_features': 'sqrt',
-            'random_state': 42,
-            'bootstrap': True,
-            'n_jobs': 1
-        }
-        
-        model = RandomForestClassifier(**rf_params)
-        print(f"   ✅ Parameter equivalent model created")
-        print(f"   🌳 Trees: {model.n_estimators}")
-        print(f"   📏 Max depth: {model.max_depth}")
-        print(f"   🎯 Random state: {model.random_state}")
-        
-        # Explain the limitation
-        print("\n⚠️  Current Limitations:")
-        print("   📋 Model has correct HYPERPARAMETERS")
-        print("   ❌ Model lacks trained TREE PARAMETERS")
-        print("   🔧 Need Java deserialization for actual parameters")
-        
-        # Explain next steps
-        print("\n🚀 Next Steps for CORRECT Implementation:")
-        print("   1. Install zstandard: pip install zstandard")
-        print("   2. Install Java bridge: pip install jpype1") 
-        print("   3. Extract actual tree parameters from Java model")
-        print("   4. Reconstruct identical Python trees")
-        print("   5. Validate predictions are identical")
-        
-        return True
-        
-    except Exception as e:
-        print(f"❌ Test failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
+    # Test basic imports
+    print("\n📦 Testing imports...")
+    from tools.java_model_parser import JavaRandomForestParser
+    print("   ✅ JavaRandomForestParser imported")
+    
+    # Test parser initialization
+    print("\n🔍 Testing Java model parser...")
+    parser = JavaRandomForestParser()
+    print(f"   ✅ Parser initialized")
+    print(f"   🔧 Java magic number: {parser.java_serialization_magic.hex()}")
+    print(f"   📋 Supported versions: {parser.supported_versions}")
+    
+    # Test feature loading
+    print("\n🧬 Testing feature loading...")
+    features_file = (Path(__file__).resolve().parent.parent / "distro" / "models" / "default" / "features.txt")
+    assert features_file.exists(), f"Features file not found: {features_file}"
+    with open(features_file, 'r') as f:
+        features = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    print(f"   ✅ Loaded {len(features)} features")
+    print(f"   📋 Sample features: {features[:3]}")
+    assert len(features) > 0
 
 def explain_correct_vs_wrong():
     """Explain the difference between correct and wrong approaches"""

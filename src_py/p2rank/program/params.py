@@ -139,15 +139,23 @@ class Params:
     def update_from_command_line(self, args: dict):
         """Update parameters from command line arguments"""
         for key, value in args.items():
+            if value is None:
+                continue
             if hasattr(self, key):
                 # Handle type conversion based on existing parameter type
                 current_value = getattr(self, key)
                 if isinstance(current_value, bool):
                     setattr(self, key, str(value).lower() in ('true', '1', 'yes', 'on'))
                 elif isinstance(current_value, int):
-                    setattr(self, key, int(value))
+                    try:
+                        setattr(self, key, int(value))
+                    except Exception:
+                        continue
                 elif isinstance(current_value, float):
-                    setattr(self, key, float(value))
+                    try:
+                        setattr(self, key, float(value))
+                    except Exception:
+                        continue
                 else:
                     setattr(self, key, value)
     

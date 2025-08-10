@@ -115,13 +115,13 @@ def test_data_loading():
         print(f"  🔗 Ligand propensity datasets: {len(ligand_props)}")
         
         print("\n🎉 All data loading tests PASSED!")
-        return True
+        assert True
         
     except Exception as e:
         print(f"\n❌ Data loading test FAILED: {e}")
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"Data loading test failed: {e}"
 
 
 def demonstrate_usage():

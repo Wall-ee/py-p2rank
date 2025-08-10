@@ -30,11 +30,11 @@ def test_imports():
             print(f"⚠ P2Rank modules not available: {e}")
             print("  This is expected if running in distro_py directory without full p2rank package")
         
-        return True
+        assert True
         
     except Exception as e:
         print(f"✗ Import test failed: {e}")
-        return False
+        assert False, f"Import test failed: {e}"
 
 
 def test_config_loader():
@@ -67,12 +67,12 @@ def test_config_loader():
             print(f"  Model: {config.get('model', 'unknown')}")
             print(f"  Features: {config.get('features', [])}")
         
-        return True
+        assert True
         
     except Exception as e:
         print(f"✗ Config loader test failed: {e}")
         traceback.print_exc()
-        return False
+        assert False, "Config loader test failed"
 
 
 def test_dependencies():
@@ -100,9 +100,8 @@ def test_dependencies():
     if missing_packages:
         print(f"\nMissing packages: {missing_packages}")
         print("Install with: pip install -r requirements.txt")
-        return False
-    
-    return True
+        assert False, f"Missing packages: {missing_packages}"
+    assert True
 
 
 def test_launcher_scripts():
@@ -137,7 +136,7 @@ def test_launcher_scripts():
             print(f"✗ {description} missing: {script_path}")
             all_good = False
     
-    return all_good
+    assert all_good
 
 
 def test_data_availability():
@@ -160,11 +159,11 @@ def test_data_availability():
         if pdb_files:
             print(f"  Example PDB: {pdb_files[0].name}")
         
-        return True
+        assert True
     else:
         print("⚠ Test data directory not found")
         print("  This is expected if test_data symlink is not created")
-        return False
+        assert False, "Test data directory not found"
 
 
 def test_file_structure():
@@ -191,7 +190,7 @@ def test_file_structure():
             print(f"✗ {description} missing: {file_path}")
             all_good = False
     
-    return all_good
+    assert all_good
 
 
 def main():

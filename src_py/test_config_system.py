@@ -26,7 +26,8 @@ def test_config_loading():
     print("🧪 Testing Configuration System")
     print("="*60)
     
-    config_dir = Path("config_py/core")
+    # Anchor to repo src_py root regardless of CWD
+    config_dir = Path(__file__).resolve().parent / "config_py" / "core"
     loader = ConfigLoader(config_dir)
     validator = ConfigValidator()
     
@@ -88,7 +89,7 @@ def test_config_loading():
                 "error": str(e)
             }
     
-    return results
+    assert all(r["status"] == "SUCCESS" for r in results.values())
 
 def test_config_inheritance():
     """Test configuration inheritance"""
@@ -96,7 +97,7 @@ def test_config_inheritance():
     print("🔗 Testing Configuration Inheritance")
     print("="*60)
     
-    config_dir = Path("config_py/core")
+    config_dir = Path(__file__).resolve().parent / "config_py" / "core"
     loader = ConfigLoader(config_dir)
     
     try:
@@ -121,11 +122,11 @@ def test_config_inheritance():
         assert test_config.features == base_config.features, "Feature inheritance failed"
         
         print(f"✅ Inheritance working correctly")
-        return True
+        assert True
         
     except Exception as e:
         print(f"❌ Inheritance test failed: {e}")
-        return False
+        assert False, f"Inheritance test failed: {e}"
 
 def test_specialized_features():
     """Test specialized model configurations"""
@@ -133,7 +134,7 @@ def test_specialized_features():
     print("🔬 Testing Specialized Configurations")
     print("="*60)
     
-    config_dir = Path("config_py/core")
+    config_dir = Path(__file__).resolve().parent / "config_py" / "core"
     loader = ConfigLoader(config_dir)
     
     try:
@@ -153,11 +154,11 @@ def test_specialized_features():
         assert "conservation" in conservation_config.features, "Conservation config should have conservation feature"
         assert conservation_config.load_conservation == True, "Conservation should be enabled"
         
-        return True
+        assert True
         
     except Exception as e:
         print(f"❌ Specialized config test failed: {e}")
-        return False
+        assert False, f"Specialized config test failed: {e}"
 
 def generate_summary_report(results):
     """Generate summary report"""

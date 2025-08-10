@@ -164,9 +164,10 @@ class Atoms:
         """Get atoms within sphere"""
         result = Atoms()
         center_coords = center.get_coords() if hasattr(center, 'get_coords') else center.coords
+        center_coords = np.asarray(center_coords, dtype=float)
         
         for atom in self.list:
-            atom_coords = atom.get_coords()
+            atom_coords = np.asarray(atom.get_coords(), dtype=float)
             distance = np.linalg.norm(atom_coords - center_coords)
             if distance <= radius:
                 result.add(atom)
@@ -179,7 +180,9 @@ class Atoms:
         
         for atom in self.list:
             for shell_atom in atoms:
-                distance = np.linalg.norm(atom.get_coords() - shell_atom.get_coords())
+                atom_coords = np.asarray(atom.get_coords(), dtype=float)
+                shell_coords = np.asarray(shell_atom.get_coords(), dtype=float)
+                distance = np.linalg.norm(atom_coords - shell_coords)
                 if distance <= radius:
                     result.add(atom)
                     break

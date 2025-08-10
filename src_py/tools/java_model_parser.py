@@ -178,10 +178,60 @@ class JavaModelParameterExtractor:
         if not self.java_bridge_available:
             logger.info("Java bridge not available, cannot extract actual parameters")
             return None
-        
-        # This would be implemented with Java bridge
-        # For now, return None
-        return None
+
+        # With JVM started and classpath set, load FlatBinaryForest and read arrays
+        try:
+            import jpype
+            from jpype import JClass
+            Futils = JClass('cz.siret.prank.utils.Futils')
+            WekaUtils = JClass('cz.siret.prank.utils.WekaUtils')
+            FlatBinaryForest = JClass('cz.siret.prank.fforest.api.FlatBinaryForest')
+
+            # Load classifier from model.zst (directory case)
+            model_path = str(model_file)
+            if model_file.is_dir():
+                is_ = Futils.inputStream(model_path + "/model.zst")
+                clf = WekaUtils.loadClassifier(is_)
+            else:
+                clf = WekaUtils.loadClassifier(model_path)
+
+            # If model is FastRandomForest/FasterForest2, convert to FlatBinaryForest via ModelConverter
+            if not isinstance(clf, FlatBinaryForest):
+                ModelConverter = JClass('cz.siret.prank.program.ml.ModelConverter')
+                # Create temporary Model wrapper and convert
+                Model = JClass('cz.siret.prank.program.ml.Model')
+                m = Model('tmp', clf)
+                m2 = ModelConverter().applyConversions(m)
+                clf = m2.classifier
+
+            # Now clf is FlatBinaryForest; extract arrays
+            numTrees = clf.getNumTrees()
+            numAttr = clf.getNumAttributes()
+            childLeft = np.array(list(clf.childLeft), dtype=np.int64)
+            childRight = np.array(list(clf.childRight), dtype=np.int64)
+            attributeIndex = np.array(list(clf.attributeIndex), dtype=np.int64)
+            splitPoint = np.array(list(clf.splitPoint), dtype=np.float64)
+            score = np.array(list(clf.score), dtype=np.float64)
+
+            # Derive roots (nodes that are never referenced as children)
+            n = childLeft.shape[0]
+            all_idx = np.arange(n, dtype=np.int64)
+            children = np.concatenate([childLeft[childLeft >= 0], childRight[childRight >= 0]])
+            roots = np.setdiff1d(all_idx, np.unique(children))
+
+            return {
+                'num_trees': int(numTrees),
+                'num_attributes': int(numAttr),
+                'child_left': childLeft,
+                'child_right': childRight,
+                'feature_index': attributeIndex,
+                'threshold': splitPoint,
+                'score': score,
+                'roots': roots,
+            }
+        except Exception as e:
+            logger.warning(f"Java parameter extraction failed: {e}")
+            return None
     
     def create_sklearn_tree_from_java_params(self, java_tree_params: Dict[str, Any]) -> DecisionTreeClassifier:
         """

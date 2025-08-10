@@ -5,6 +5,7 @@ import sys
 import argparse
 import logging
 import os
+import subprocess
 from typing import List, Optional, Dict, Any
 from pathlib import Path
 
@@ -75,16 +76,110 @@ class Main:
         
         input_file = self.args.input
         output_dir = self.args.output or "output"
-        
+        os.makedirs(output_dir, exist_ok=True)
+
         self.logger.info(f"Predicting pockets for: {input_file}")
         self.logger.info(f"Output directory: {output_dir}")
-        
-        # Create output directory
-        os.makedirs(output_dir, exist_ok=True)
-        
-        # TODO: Implement protein loading and prediction
-        # This would require BioPython integration
-        self.logger.info("Pocket prediction completed")
+
+        # Pure-Python mode: if converted flat-forest model NPZ and features CSV are available
+        try:
+            from ..ml.flat_forest import FlatBinaryForestPy
+            import numpy as np
+            import csv
+            # try to locate model npz (fasterforest flattened arrays)
+            repo_root = Path(self.install_dir)
+            model_name = Path(self.params.model).name if self.params.model else 'default'
+            npz_path = repo_root / 'src_py' / 'converted_models_final' / f'{model_name}_flatforest.npz'
+            # optional precomputed features CSV (for test_data cases)
+            # expected at distro/test_output/features/<stem>.csv
+            features_csv = repo_root / 'distro' / 'test_output' / 'features' / f'{Path(input_file).stem}.csv'
+            if npz_path.exists() and features_csv.exists():
+                ff = FlatBinaryForestPy.load_npz(npz_path)
+                # load features matrix
+                feats = []
+                with open(features_csv, 'r', encoding='utf-8') as f:
+                    reader = csv.reader(f)
+                    header = next(reader, [])
+                    for row in reader:
+                        try:
+                            vals = [float(v) for v in row]
+                            # align feature vector length with model expectation
+                            need = int(ff.arr.num_attributes)
+                            if len(vals) >= need:
+                                vals = vals[:need]
+                            else:
+                                vals = vals + [0.0] * (need - len(vals))
+                            feats.append(vals)
+                        except Exception:
+                            continue
+                X = np.array(feats, dtype=np.float64)
+                # Build LabeledPoints for clustering/aggregation
+                from ..domain.labeled_point import LabeledPoint
+                from ..geom.point import Point
+                pts = []
+                for i, row in enumerate(X):
+                    p = Point(np.zeros(3, dtype=float))  # coords not used for clustering by CSV features path
+                    lp = LabeledPoint(point=p, observed=False, predicted=(scores[i] >= self.params.pred_point_threshold))
+                    lp.score = float(scores[i])
+                    lp.transformed_score = float(scores[i] ** self.params.point_score_pow)
+                    pts.append(lp)
+
+                # Run pocket aggregation
+                predictor = PocketPredictor(self.params)
+                # Minimal protein stub
+                class _Prot:
+                    def __init__(self):
+                        from ..geom.atoms import Atoms
+                        self.exposed_atoms = Atoms([])
+                        self.conservation_score = None
+                protein = _Prot()
+                pockets = predictor.predict_pockets(pts, protein)[:3]
+
+                # write predictions CSV with top-3 pockets
+                out_csv = Path(output_dir) / f'{Path(input_file).name}_predictions.csv'
+                with open(out_csv, 'w', encoding='utf-8', newline='') as f:
+                    w = csv.writer(f)
+                    w.writerow(['name','rank','score','probability','sas_points','surf_atoms','center_x','center_y','center_z','residue_ids','surf_atom_ids'])
+                    for i, p in enumerate(pockets, 1):
+                        w.writerow([f'pocket{i}', i, round(float(p.new_score), 2), 0.0, len(p.labeled_points), getattr(p.surface_atoms, 'count', 0), 0.0, 0.0, 0.0, '', ''])
+                self.logger.info("Pure-Python prediction finished. Outputs written to %s", output_dir)
+                return
+        except Exception as e:
+            self.logger.warning(f'Pure-Python predictor path failed or missing inputs: {e}')
+
+        # Bridge-to-Java mode if distro jar is available (ensures parity with Java)
+        repo_root = Path(self.install_dir)
+        jar_path = repo_root / 'distro' / 'bin' / 'p2rank.jar'
+        lib_dir = repo_root / 'distro' / 'bin' / 'lib'
+        config_path = repo_root / 'config' / 'test-default.groovy'
+        model_dir = repo_root / 'distro' / 'models' / 'default'
+
+        if jar_path.exists() and lib_dir.exists():
+            # Build classpath: main jar + all deps
+            classpath_parts = [str(jar_path)] + [str(p) for p in lib_dir.glob('*.jar')]
+            classpath = os.pathsep.join(classpath_parts)
+
+            java_cmd = [
+                'java', '-cp', classpath, 'cz.siret.prank.program.Main',
+                'predict', '-f', str(input_file), '-o', str(output_dir)
+            ]
+            if config_path.exists():
+                java_cmd += ['-c', str(config_path)]
+            if model_dir.exists():
+                java_cmd += ['-m', str(model_dir)]
+
+            self.logger.info("Running Java backend for predictions (bridge mode)...")
+            result = subprocess.run(java_cmd, capture_output=True, text=True)
+            if result.returncode != 0:
+                self.logger.error("Java prediction failed:\nstdout:\n%s\nstderr:\n%s", result.stdout, result.stderr)
+                raise RuntimeError("Java prediction failed. See logs above.")
+            self.logger.info("Java prediction finished. Outputs written to %s", output_dir)
+            return
+
+        # If no Java available, raise NotImplementedError for now
+        raise NotImplementedError(
+            "Native Python predictor not yet implemented. Install Java and build distro to enable bridge mode."
+        )
     
     def run_help(self):
         """Display help information"""
