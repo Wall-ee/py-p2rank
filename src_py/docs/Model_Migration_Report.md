@@ -22,7 +22,7 @@
 
 ### 关键文件
 - `src_py/tools/export_flatforest.py`：参数导出（JPype）
-- `src_py/p2rank/ml/flat_forest.py`：Python 推理
+- `src_py/p2rank/ml/faster_forest.py`：Python 推理
 - `src_py/p2rank/prediction/pocket_predictor.py`：聚类与口袋聚合
 - `src_py/p2rank/program/main.py`：纯 Python 路径串接与 CSV 输出
 - 测试：`tests/integration/test_point_level_equivalence.py`、`tests/integration/test_pure_python_against_gold.py`

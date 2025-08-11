@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from p2rank.ml.flat_forest import FlatBinaryForestPy
+from p2rank.ml.faster_forest import FlatBinaryForestPy
 
 
 pytestmark = pytest.mark.pure

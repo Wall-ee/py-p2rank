@@ -83,7 +83,7 @@ class Main:
 
         # Pure-Python mode: if converted flat-forest model NPZ and features CSV are available
         try:
-            from ..ml.flat_forest import FlatBinaryForestPy
+            from ..ml.faster_forest import FlatBinaryForestPy
             import numpy as np
             import csv
             # try to locate model npz (fasterforest flattened arrays)
