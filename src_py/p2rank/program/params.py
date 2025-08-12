@@ -67,6 +67,8 @@ class Params:
         self.balance_density_radius: float = 2.0
         self.score_point_limit: int = 0
         self.score_pockets_by: str = "default"  # "default", "conservation", "combi"
+        # Point score transformer (power)
+        self.point_score_pow: float = 2.0
         
         # Surface and tessellation
         self.tessellation: str = "connolly"

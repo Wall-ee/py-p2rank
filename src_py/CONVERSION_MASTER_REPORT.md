@@ -43,7 +43,7 @@
 
 - `src_py/converted_models_final/`：纯 Python 推理最终工件区。
   - 内容：`.npz`（FasterForest 扁平数组：`child_left/right`、`feature_index`、`threshold`、`left/right_leaf_id`、`leaf_class0/1`、`roots`、`num_trees`、`num_attributes` 等）。
-  - 用途：由 `p2rank.ml.flat_forest.FlatBinaryForestPy` 直接加载并推理（无需 JVM）。
+  - 用途：由 `p2rank.ml.faster_forest.FlatBinaryForestPy` 直接加载并推理（无需 JVM，文件名后缀 `_flatforest.npz` 为历史兼容命名）。
   - 状态：已通过点级与口袋级的数值等价测试（对齐 Java 金标）。
 
 ### 速记理解
