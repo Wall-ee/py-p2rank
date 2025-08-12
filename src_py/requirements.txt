@@ -9,6 +9,7 @@ click>=8.0.0
 pyyaml>=5.4.0
 joblib>=1.0.0
 tqdm>=4.62.0
+pytest>=8.0.0
 
 # Additional scientific computing libraries
 statsmodels>=0.13.0

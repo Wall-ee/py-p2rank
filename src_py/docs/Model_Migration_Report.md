@@ -21,7 +21,7 @@
 - 口袋得分为簇内点分数和；排序输出 Top-N。
 
 ### 关键文件
-- `src_py/tools/export_flatforest.py`：参数导出（JPype）
+- `src_py/tools/export_flatforest.py`：参数导出（JPype，导出 FasterForest 扁平数组）
 - `src_py/p2rank/ml/faster_forest.py`：Python 推理
 - `src_py/p2rank/prediction/pocket_predictor.py`：聚类与口袋聚合
 - `src_py/p2rank/program/main.py`：纯 Python 路径串接与 CSV 输出
@@ -51,6 +51,7 @@ graph TD
 ```
 
 ### 试错与关键坑点
+- HMM 命名说明：模型名中包含 “hmm/alphafold_conservation_hmm” 指的是在特征流水线中使用了 HMM/保守性分数（或 AlphaFold 变体），并非分类器为 HMM。分类器仍为 FasterForest，因而与其它模型一样使用 FasterForest 纯 Python 推理器进行等价性测试。
 - 叶索引：Legacy 使用 `classProbs[-node]`，若额外减 1 会导致彻底错位。
 - 分支方向：Java 字节码为 `dcmpg ifge → 右分支`，需用严格 `<`。
 - 特征维度：`getNumAttributes()` 包含类列，必须用 `max(attributeIndex)+1`。
