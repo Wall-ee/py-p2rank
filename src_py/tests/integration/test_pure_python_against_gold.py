@@ -46,26 +46,21 @@ def test_pure_python_vs_gold(case: str, tmp_path):
     assert sample.exists(), f'Sample missing: {sample}'
     assert gold_csv.exists(), f'Gold predictions missing: {gold_csv}'
 
-    # Prefer precomputed pure-Python predictions if available to avoid runtime Java deps
-    py_pred_precomputed = GOLD_DIR / 'py_pred' / f'{case}.cif_predictions.csv'
-    if py_pred_precomputed.exists():
-        py_csv = py_pred_precomputed
-    else:
-        # Run pure-Python prediction into tmp_path
-        import subprocess
-        env = dict(**os.environ)
-        env['PYTHONPATH'] = f"{(REPO_ROOT/'src_py').as_posix()}:{env.get('PYTHONPATH','')}"
-        cmd = [
-            'python', '-m', 'p2rank.program.main',
-            'predict', '-i', str(sample), '-o', str(tmp_path), '-m', 'default', '-c', str(REPO_ROOT / 'src_py' / 'config_py' / 'core' / 'base.yaml')
-        ]
-        result = subprocess.run(cmd, cwd=tmp_path, capture_output=True, text=True, env=env)
-        if result.returncode != 0:
-            pytest.skip(f'Pure-Python predictor not runnable in this environment: {result.stderr}')
+    # Run pure-Python prediction into tmp_path
+    import subprocess
+    env = dict(**os.environ)
+    env['PYTHONPATH'] = f"{(REPO_ROOT/'src_py').as_posix()}:{env.get('PYTHONPATH','')}"
+    cmd = [
+        'python', '-m', 'p2rank.program.main',
+        'predict', '-i', str(sample), '-o', str(tmp_path), '-c', str(REPO_ROOT / 'src_py' / 'config_py' / 'core' / 'test_default.yaml')
+    ]
+    result = subprocess.run(cmd, cwd=tmp_path, capture_output=True, text=True, env=env)
+    if result.returncode != 0:
+        raise AssertionError(f'Pure-Python predictor failed: {result.stderr}')
 
-        py_csvs = list(tmp_path.glob('*_predictions.csv'))
-        assert py_csvs, 'No predictions CSV produced by pure-Python path'
-        py_csv = py_csvs[0]
+    py_csvs = list(tmp_path.glob('*_predictions.csv'))
+    assert py_csvs, 'No predictions CSV produced by pure-Python path'
+    py_csv = py_csvs[0]
     gold_scores = load_top_scores_from_csv(gold_csv)
     py_scores = load_top_scores_from_csv(py_csv)
     assert len(gold_scores) == len(py_scores) == 3

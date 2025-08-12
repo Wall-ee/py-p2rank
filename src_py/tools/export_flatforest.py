@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Export FasterForest flattened arrays (FlatBinaryForest API) from Java model to NPZ
-for pure-Python inference.
+Export FlatBinaryForest arrays from Java model to NPZ for pure-Python inference.
 
 Requires Java distro built at `distro/bin/p2rank.jar` and deps in `distro/bin/lib`.
 """
@@ -148,7 +147,7 @@ def export_model_npz(model_dir: Path, out_npz: Path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Export FasterForest flattened arrays (FlatBinaryForest API) to NPZ')
+    parser = argparse.ArgumentParser(description='Export FlatBinaryForest arrays to NPZ')
     parser.add_argument('--repo-root', default=str(Path(__file__).resolve().parents[2]), help='Repository root')
     parser.add_argument('--model-dir', required=True, help='Path to model directory (contains model.zst)')
     parser.add_argument('--out-npz', required=True, help='Output NPZ path')

@@ -113,18 +113,15 @@ class Main:
                         except Exception:
                             continue
                 X = np.array(feats, dtype=np.float64)
-                # Predict point scores (pure Python FasterForest)
-                scores = ff.predict(X)
                 # Build LabeledPoints for clustering/aggregation
                 from ..domain.labeled_point import LabeledPoint
                 from ..geom.point import Point
                 pts = []
                 for i, row in enumerate(X):
                     p = Point(np.zeros(3, dtype=float))  # coords not used for clustering by CSV features path
-                    sc = float(scores[i])
-                    lp = LabeledPoint(point=p, observed=False, predicted=(sc >= self.params.pred_point_threshold))
-                    lp.score = sc
-                    lp.transformed_score = float(sc ** self.params.point_score_pow)
+                    lp = LabeledPoint(point=p, observed=False, predicted=(scores[i] >= self.params.pred_point_threshold))
+                    lp.score = float(scores[i])
+                    lp.transformed_score = float(scores[i] ** self.params.point_score_pow)
                     pts.append(lp)
 
                 # Run pocket aggregation
