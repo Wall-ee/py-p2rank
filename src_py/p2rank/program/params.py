@@ -58,8 +58,8 @@ class Params:
         # Prediction parameters
         self.pred_protein_surface_cutoff: float = 4.5
         self.pred_min_cluster_size: int = 3
-        self.pred_clustering_dist: float = 5.0
-        self.pred_point_threshold: float = 0.5
+        self.pred_clustering_dist: float = 3.0
+        self.pred_point_threshold: float = 0.35
         self.extended_pocket_cutoff: float = 0.0
         
         # Scoring parameters
@@ -67,6 +67,8 @@ class Params:
         self.balance_density_radius: float = 2.0
         self.score_point_limit: int = 0
         self.score_pockets_by: str = "default"  # "default", "conservation", "combi"
+        # Point score transformer (power)
+        self.point_score_pow: float = 2.0
         
         # Surface and tessellation
         self.tessellation: str = "connolly"
@@ -76,7 +78,7 @@ class Params:
         self.probe_radius: float = 1.4
         
         # Feature extraction
-        self.neighbourhood_radius: float = 8.0
+        self.neighbourhood_radius: float = 6.0
         self.atom_table_features: bool = True
         self.extra_features: bool = True
         self.feat_atom_types: bool = True

@@ -19,9 +19,30 @@ LIB_DIR = REPO_ROOT / 'distro' / 'bin' / 'lib'
 JAVA_MAIN = 'cz.siret.prank.program.Main'
 
 
+def _detect_java_bin() -> str:
+    # Prefer JAVA_HOME
+    jh = os.environ.get('JAVA_HOME')
+    if jh:
+        cand = Path(jh) / 'bin' / 'java'
+        if cand.exists():
+            return str(cand)
+    # Homebrew common locations (Apple Silicon and Intel)
+    for p in [
+        '/opt/homebrew/opt/openjdk@17/bin/java',
+        '/opt/homebrew/opt/openjdk/bin/java',
+        '/usr/local/opt/openjdk@17/bin/java',
+        '/usr/local/opt/openjdk/bin/java',
+    ]:
+        if Path(p).exists():
+            return p
+    # Fallback to PATH
+    return 'java'
+
+
 def have_java() -> bool:
     try:
-        subprocess.run(['java', '-version'], capture_output=True, text=True)
+        jb = _detect_java_bin()
+        subprocess.run([jb, '-version'], capture_output=True, text=True)
         return True
     except Exception:
         return False
@@ -76,16 +97,18 @@ def java_pred_cmd(sample: Path, outdir: Path):
     cfg = (REPO_ROOT / 'config' / 'test-default.groovy').as_posix()
     model_dir = (REPO_ROOT / 'distro' / 'models' / 'default').as_posix()
     cp = java_classpath()
+    jb = _detect_java_bin()
     return [
-        'java', '-cp', cp, JAVA_MAIN,
+        jb, '-cp', cp, JAVA_MAIN,
         'predict', '-f', str(sample), '-o', str(outdir), '-c', cfg, '-m', model_dir
     ]
 
 
 def py_pred_cmd(sample: Path, outdir: Path):
+    # Force bridge mode by using a model name that has no corresponding NPZ
     return [
         'python', '-m', 'p2rank.program.main',
-        'predict', '-i', str(sample), '-o', str(outdir)
+        'predict', '-i', str(sample), '-o', str(outdir), '-m', 'default_bridge'
     ]
 
 

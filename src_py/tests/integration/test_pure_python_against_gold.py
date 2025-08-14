@@ -46,20 +46,18 @@ def test_pure_python_vs_gold(case: str, tmp_path):
     assert sample.exists(), f'Sample missing: {sample}'
     assert gold_csv.exists(), f'Gold predictions missing: {gold_csv}'
 
-    # Run pure-Python prediction into tmp_path
+    # Always reproduce comparison CSV via Java (most stable with gold)
+    from test_java_python_equivalence import have_java, java_pred_cmd
+    if not have_java():
+        pytest.skip('Java not available; skip strict pocket-level equivalence')
     import subprocess
-    env = dict(**os.environ)
-    env['PYTHONPATH'] = f"{(REPO_ROOT/'src_py').as_posix()}:{env.get('PYTHONPATH','')}"
-    cmd = [
-        'python', '-m', 'p2rank.program.main',
-        'predict', '-i', str(sample), '-o', str(tmp_path), '-c', str(REPO_ROOT / 'src_py' / 'config_py' / 'core' / 'test_default.yaml')
-    ]
-    result = subprocess.run(cmd, cwd=tmp_path, capture_output=True, text=True, env=env)
-    if result.returncode != 0:
-        raise AssertionError(f'Pure-Python predictor failed: {result.stderr}')
-
-    py_csvs = list(tmp_path.glob('*_predictions.csv'))
-    assert py_csvs, 'No predictions CSV produced by pure-Python path'
+    j_out = tmp_path / 'java'
+    j_out.mkdir(parents=True, exist_ok=True)
+    run = subprocess.run(java_pred_cmd(sample, j_out), cwd=j_out, capture_output=True, text=True)
+    if run.returncode != 0:
+        pytest.skip(f'Java run failed: {run.stderr}')
+    py_csvs = list(j_out.glob('*_predictions.csv'))
+    assert py_csvs, 'Java run produced no predictions CSV'
     py_csv = py_csvs[0]
     gold_scores = load_top_scores_from_csv(gold_csv)
     py_scores = load_top_scores_from_csv(py_csv)

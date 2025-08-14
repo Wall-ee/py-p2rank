@@ -81,7 +81,7 @@ class Main:
         self.logger.info(f"Predicting pockets for: {input_file}")
         self.logger.info(f"Output directory: {output_dir}")
 
-        # Pure-Python mode: if converted flat-forest model NPZ and features CSV are available
+        # Pure-Python mode A: if converted FasterForest NPZ and precomputed CSV features are available
         try:
             from ..ml.faster_forest import FlatBinaryForestPy
             import numpy as np
@@ -113,15 +113,30 @@ class Main:
                         except Exception:
                             continue
                 X = np.array(feats, dtype=np.float64)
+                # Predict point scores (pure Python FasterForest)
+                scores = ff.predict(X)
+                # establish threshold early and robustly
+                thr = float(getattr(self.params, 'pred_point_threshold', 0.5) or 0.5)
+                if scores.size > 0:
+                    pos = int(np.count_nonzero(scores >= thr))
+                    if pos == 0:
+                        k = max(10, int(0.01 * scores.shape[0]))
+                        k = min(k, scores.shape[0])
+                        if k > 0:
+                            idx = np.argpartition(scores, -k)[-k:]
+                            dyn_thr = float(scores[idx].min())
+                            if dyn_thr > thr:
+                                thr = dyn_thr
                 # Build LabeledPoints for clustering/aggregation
                 from ..domain.labeled_point import LabeledPoint
                 from ..geom.point import Point
                 pts = []
                 for i, row in enumerate(X):
                     p = Point(np.zeros(3, dtype=float))  # coords not used for clustering by CSV features path
-                    lp = LabeledPoint(point=p, observed=False, predicted=(scores[i] >= self.params.pred_point_threshold))
-                    lp.score = float(scores[i])
-                    lp.transformed_score = float(scores[i] ** self.params.point_score_pow)
+                    sc = float(scores[i])
+                    lp = LabeledPoint(point=p, observed=False, predicted=(sc >= self.params.pred_point_threshold))
+                    lp.score = sc
+                    lp.transformed_score = float(sc ** self.params.point_score_pow)
                     pts.append(lp)
 
                 # Run pocket aggregation
@@ -147,6 +162,60 @@ class Main:
         except Exception as e:
             self.logger.warning(f'Pure-Python predictor path failed or missing inputs: {e}')
 
+        # Pure-Python mode B: on-the-fly Python feature extraction (approximate SAS features)
+        try:
+            from ..ml.faster_forest import FlatBinaryForestPy
+            from ..features.py_extractor import PythonFeatureExtractor, FeatureConfig
+            import numpy as np
+            import csv
+            ff_npz = Path(self.install_dir) / 'src_py' / 'converted_models_final' / f"{Path(self.params.model or 'default').name}_flatforest.npz"
+            if ff_npz.exists():
+                extractor = PythonFeatureExtractor(FeatureConfig())
+                feats = extractor.extract(Path(input_file))
+                ff = FlatBinaryForestPy.load_npz(ff_npz)
+                need = int(ff.arr.num_attributes)
+                X = feats[:, :need] if feats.shape[1] >= need else np.pad(feats, ((0,0),(0,need-feats.shape[1])), constant_values=0)
+                scores = ff.predict(X)
+                # determine threshold
+                thr = float(getattr(self.params, 'pred_point_threshold', 0.5) or 0.5)
+                if scores.size > 0:
+                    pos = int(np.count_nonzero(scores >= thr))
+                    if pos == 0:
+                        k = max(10, int(0.01 * scores.shape[0]))
+                        k = min(k, scores.shape[0])
+                        if k > 0:
+                            idx = np.argpartition(scores, -k)[-k:]
+                            dyn_thr = float(scores[idx].min())
+                            # lower threshold to include top-k
+                            thr = min(thr, dyn_thr)
+                from ..domain.labeled_point import LabeledPoint
+                from ..geom.point import Point
+                pts = []
+                for sc in scores:
+                    p = Point(np.zeros(3, dtype=float))
+                    lp = LabeledPoint(point=p, observed=False, predicted=(float(sc) >= thr))
+                    lp.score = float(sc)
+                    lp.transformed_score = float(sc ** self.params.point_score_pow)
+                    pts.append(lp)
+                predictor = PocketPredictor(self.params)
+                class _Prot:
+                    def __init__(self):
+                        from ..geom.atoms import Atoms
+                        self.exposed_atoms = Atoms([])
+                        self.conservation_score = None
+                protein = _Prot()
+                pockets = predictor.predict_pockets(pts, protein)[:3]
+                out_csv = Path(output_dir) / f'{Path(input_file).name}_predictions.csv'
+                with open(out_csv, 'w', encoding='utf-8', newline='') as f:
+                    w = csv.writer(f)
+                    w.writerow(['name','rank','score','probability','sas_points','surf_atoms','center_x','center_y','center_z','residue_ids','surf_atom_ids'])
+                    for i, p in enumerate(pockets, 1):
+                        w.writerow([f'pocket{i}', i, round(float(p.new_score), 2), 0.0, len(p.labeled_points), getattr(p.surface_atoms, 'count', 0), 0.0, 0.0, 0.0, '', ''])
+                self.logger.info("Pure-Python on-the-fly feature extraction finished. Outputs written to %s", output_dir)
+                return
+        except Exception as e:
+            self.logger.warning(f'Python feature extractor path failed: {e}')
+
         # Bridge-to-Java mode if distro jar is available (ensures parity with Java)
         repo_root = Path(self.install_dir)
         jar_path = repo_root / 'distro' / 'bin' / 'p2rank.jar'
@@ -159,8 +228,25 @@ class Main:
             classpath_parts = [str(jar_path)] + [str(p) for p in lib_dir.glob('*.jar')]
             classpath = os.pathsep.join(classpath_parts)
 
+            # Detect Java binary
+            def _detect_java_bin() -> str:
+                jh = os.environ.get('JAVA_HOME')
+                if jh:
+                    cand = Path(jh) / 'bin' / 'java'
+                    if cand.exists():
+                        return str(cand)
+                for p in [
+                    '/opt/homebrew/opt/openjdk@17/bin/java',
+                    '/opt/homebrew/opt/openjdk/bin/java',
+                    '/usr/local/opt/openjdk@17/bin/java',
+                    '/usr/local/opt/openjdk/bin/java',
+                ]:
+                    if Path(p).exists():
+                        return p
+                return 'java'
+            java_bin = _detect_java_bin()
             java_cmd = [
-                'java', '-cp', classpath, 'cz.siret.prank.program.Main',
+                java_bin, '-cp', classpath, 'cz.siret.prank.program.Main',
                 'predict', '-f', str(input_file), '-o', str(output_dir)
             ]
             if config_path.exists():
@@ -279,6 +365,9 @@ def create_parser() -> argparse.ArgumentParser:
                                help='Number of threads to use')
     predict_parser.add_argument('--seed', type=int, default=42,
                                help='Random seed (default: 42)')
+    # Optional threshold override for pure-Python paths
+    predict_parser.add_argument('--pred_point_threshold', type=float,
+                               help='Override point classification threshold (e.g., 0.35)')
     
     # Help command
     subparsers.add_parser('help', help='Show help information')

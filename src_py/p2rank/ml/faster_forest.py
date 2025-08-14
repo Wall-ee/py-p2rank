@@ -58,7 +58,7 @@ class FlatBinaryForestPy:
 
     @staticmethod
     def load_npz(npz_path: Path) -> "FlatBinaryForestPy":
-        data = np.load(npz_path)
+        data = np.load(npz_path, allow_pickle=False)
         roots = data.get("roots")
         if roots is None:
             n = int(data["child_left"].shape[0])
@@ -69,19 +69,47 @@ class FlatBinaryForestPy:
                 children.append(arr[arr >= 0])
             child_set = np.unique(np.concatenate(children)) if children else np.array([], dtype=np.int64)
             roots = np.setdiff1d(all_idx, child_set, assume_unique=False)
+        child_left = data["child_left"]
+        child_right = data["child_right"]
+        feature_index = data["feature_index"]
+        threshold = data["threshold"]
+
+        # Optional fields with robust fallbacks
+        left_leaf_id = data.get("left_leaf_id")
+        if left_leaf_id is None:
+            left_leaf_id = np.where(child_left < 0, (-child_left).astype(np.int64), np.int64(-1))
+        right_leaf_id = data.get("right_leaf_id")
+        if right_leaf_id is None:
+            right_leaf_id = np.where(child_right < 0, (-child_right).astype(np.int64), np.int64(-1))
+
+        leaf_class0 = data.get("leaf_class0")
+        leaf_class1 = data.get("leaf_class1")
+
+        node_prob = data.get("node_prob")
+        if node_prob is None and (leaf_class0 is not None and leaf_class1 is not None):
+            denom = (leaf_class0 + leaf_class1)
+            with np.errstate(divide='ignore', invalid='ignore'):
+                node_prob = np.where(denom > 0.0, leaf_class1 / denom, 0.0).astype(np.float64)
+        if node_prob is None:
+            # final fallback: derive leaf count from negative child indices, fill zeros
+            max_left = int(np.max(-child_left[child_left < 0])) if np.any(child_left < 0) else 0
+            max_right = int(np.max(-child_right[child_right < 0])) if np.any(child_right < 0) else 0
+            n_leaves = max(max_left, max_right) + 1 if (max_left > 0 or max_right > 0) else 0
+            node_prob = np.zeros(n_leaves, dtype=np.float64)
+
         arrays = FlatForestArrays(
-            child_left=data["child_left"],
-            child_right=data["child_right"],
-            feature_index=data["feature_index"],
-            threshold=data["threshold"],
-            node_prob=data["node_prob"],
-            left_leaf_id=data["left_leaf_id"],
-            right_leaf_id=data["right_leaf_id"],
+            child_left=child_left,
+            child_right=child_right,
+            feature_index=feature_index,
+            threshold=threshold,
+            node_prob=node_prob,
+            left_leaf_id=left_leaf_id,
+            right_leaf_id=right_leaf_id,
             num_trees=int(data["num_trees"]),
             num_attributes=int(data["num_attributes"]),
             roots=roots,
-            leaf_class0=data.get("leaf_class0"),
-            leaf_class1=data.get("leaf_class1"),
+            leaf_class0=leaf_class0,
+            leaf_class1=leaf_class1,
         )
         return FlatBinaryForestPy(arrays)
 

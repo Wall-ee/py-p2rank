@@ -1,0 +1,10 @@
+{
+  "algo": "sklearn_rf",
+  "n_estimators": 200,
+  "max_depth": 20,
+  "seed": 42,
+  "train_shape": [
+    4996,
+    30
+  ]
+}
